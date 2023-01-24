@@ -29,9 +29,37 @@ ChartJS.register(
 	Legend
 );
 
+
 export async function getServerSideProps() {
 	const res = await fetch('https://www.contrahacker.com/api/example-data');
 	const data = await res.json();
+
+
+	return {
+		props: {
+			data
+		},
+	};
+}
+
+const inter = Inter({ subsets: ['latin'] });
+
+// https://www.contrahacker.com/api/example-data
+
+const fetcher = async ()=>{
+	const res = await fetch('https://www.contrahacker.com/api/example-data');
+	const data = await res.json();
+  return data;
+}
+
+export default function Home({ sdata }) {
+  const {data, error} = useSWR('dashboard', fetcher,{
+    initialData: sdata
+  })
+
+  if(error) return 'An error has occured'
+  if(!data) return 'Loading'
+
 	let final = data.data.reduce((acc, curr) => {
 		if (acc[curr.sector]) {
 			acc[curr.sector] += curr.price;
@@ -71,20 +99,6 @@ export async function getServerSideProps() {
 		],
 	};
 
-	return {
-		props: {
-			data,
-			dn,
-			bar,
-		},
-	};
-}
-
-const inter = Inter({ subsets: ['latin'] });
-
-// https://www.contrahacker.com/api/example-data
-
-export default function Home({ data, dn, bar }) {
 	return (
 		<>
 			<Head>
